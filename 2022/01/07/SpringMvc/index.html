@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="SpringMvc  在web.xml配置SpringMvc的核心控制器dispatcherServlet  1.拦截 2.分发  在web.xml还要配置全局参数 contextConfigLocation 去扫描applicationContext.xml ，在该文件有包扫描  配置contextConfigLocation 还要配置一个监听器  &#96;&#96;&#96;          contextCon">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/2022/01/07/SpringMvc/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="SpringMvc  在web.xml配置SpringMvc的核心控制器dispatcherServlet  1.拦截 2.分发  在web.xml还要配置全局参数 contextConfigLocation 去扫描applicationContext.xml ，在该文件有包扫描  配置contextConfigLocation 还要配置一个监听器  &#96;&#96;&#96;          contextCon">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-01-07T05:05:40.322Z">
+<meta property="article:modified_time" content="2021-12-11T12:26:57.842Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-SpringMvc" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2022/01/07/SpringMvc/" class="article-date">
+  <time datetime="2022-01-07T05:05:40.322Z" itemprop="datePublished">2022-01-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>SpringMvc</strong></p>
+<ol>
+<li><p>在web.xml配置SpringMvc的核心控制器dispatcherServlet  1.拦截 2.分发</p>
+</li>
+<li><p>在web.xml还要配置全局参数 contextConfigLocation 去扫描applicationContext.xml ，在该文件有包扫描</p>
+</li>
+<li><p>配置contextConfigLocation 还要配置一个监听器</p>
+</li>
+<li><p>```</p>
+<web-app>
+<!--  配置全局参数-->
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:springconf/applicationContext.xml</param-value>
+  </context-param>
+<!--  配置监听器 加载全局配置-->
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+</web-app>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">@ResponseBody //1.把数据转换为JSON 2. 相当于Response.getwriter.write()，直接把数据输出到浏览器页面上</span><br><span class="line"></span><br><span class="line">但是要整合fastjson，在maven导入fastjson包（使用el表达式还要导入jstl依赖），并且在spring-mvc加入以下配置：</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<!--配置fastjson 消息转换器 默认只支持 jackson-->
+<mvc:annotation-driven>
+ <!--不使用默认消息转换器 -->
+ <mvc:message-converters register-defaults="false">
+     <!--spring消息转换器 -->
+     <bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter"/>
+     <bean class="org.springframework.http.converter.BufferedImageHttpMessageConverter"/>
+
+<pre><code> &lt;!--解决@Responcebody中文乱码问题 --&gt;
+ &lt;bean class=&quot;org.springframework.http.converter.StringHttpMessageConverter&quot;&gt;
+     &lt;constructor-arg value=&quot;UTF-8&quot;/&gt;
+ &lt;/bean&gt;
+ &lt;!--配合fastjson支持 --&gt;
+ &lt;bean class=&quot;com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter&quot;&gt;
+     &lt;property name=&quot;defaultCharset&quot; value=&quot;UTF-8&quot;/&gt;
+     &lt;property name=&quot;supportedMediaTypes&quot;&gt;
+         &lt;list&gt;
+             &lt;!--顺序保持这样,避免IE下载出错 --&gt;
+             &lt;value&gt;text/html;charset=UTF-8&lt;/value&gt;
+             &lt;value&gt;application/json&lt;/value&gt;
+         &lt;/list&gt;
+     &lt;/property&gt;
+     &lt;property name=&quot;fastJsonConfig&quot; ref=&quot;fastJsonConfig&quot;/&gt;
+ &lt;/bean&gt;
+</code></pre>
+<p> </mvc:message-converters><br></mvc:annotation-driven></p>
+</li>
+</ol>
+<!--fastJsonConfig -->
+<bean id="fastJsonConfig" class="com.alibaba.fastjson.support.config.FastJsonConfig">
+    <!--默认编码格式 -->
+    <property name="charset" value="UTF-8"/>
+
+<pre><code>&lt;property name=&quot;serializerFeatures&quot;&gt;
+    &lt;list&gt;
+        &lt;value&gt;WriteNullListAsEmpty&lt;/value&gt;
+        &lt;value&gt;WriteDateUseDateFormat&lt;/value&gt;
+        &lt;value&gt;PrettyFormat&lt;/value&gt;
+        &lt;value&gt;WriteMapNullValue&lt;/value&gt;
+        &lt;value&gt;WriteNullStringAsEmpty&lt;/value&gt;
+        &lt;value&gt;WriteNullListAsEmpty&lt;/value&gt;
+        &lt;value&gt;DisableCircularReferenceDetect&lt;/value&gt;
+    &lt;/list&gt;
+&lt;/property&gt;
+</code></pre>
+</bean>
+<!--fastjson支持配置结束 -->
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">spring-mvc是默认支持	jackson 的</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">pagehelper使用：</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+        //执行分页操作
+        Page<Employee> pageBean = PageHelper.startPage(currentPage, pageSize);
+        this.employeeMapper.selectAll();
+//        获得详细的分页数据
+        PageInfo<Employee> pageInfo = new PageInfo<>(pageBean);
+        List<Employee> currentPageList = pageInfo.getList();
+        return currentPageList;
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">值得一提的是，pageHelper会自动做分页左右边界的判断，输入currentPage&lt;0 会自动设置为第一页，超过最大页的数会自动设为最大页</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">ssmtest重构：</span><br><span class="line"></span><br><span class="line">当发现httpServlet等等tomcat的类爆红 ，先检查 External Libraries 有没有tomcat包，没有的话打开</span><br><span class="line"></span><br><span class="line">project structure--modules--dependencies 加号添加tomcat</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">springmvc三大组件：</span><br><span class="line"></span><br><span class="line">1. 处理器映射器 Handler Mapping   处理@RequestMapping 注解的属性</span><br><span class="line"></span><br><span class="line">   /queryAll 处理器映射器 根据/queryAll找到对应的方法</span><br><span class="line"></span><br><span class="line">2. 处理器适配器 HandleAdapter</span><br><span class="line"></span><br><span class="line">   处理器适配器 根据处理器映射器找到的方法 利用反射机制 调用执行这个方法</span><br><span class="line"></span><br><span class="line">   Method invoke （obj，args）</span><br><span class="line"></span><br><span class="line">3. 视图解析器（ViewResolver）把逻辑视图转化为物理视图</span><br><span class="line"></span><br><span class="line">   “page/item/itemList.jsp” 逻辑视图</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line"></span><br><span class="line">   spring-mvc.xml：</span><br><span class="line"></span><br><span class="line">   &lt;mvc:annotation-driven /&gt; 配置这个就配置了1和2</span><br><span class="line"></span><br><span class="line">   InternalResourceViewResolver 配置视图解析器</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">设置视图两种方式：</span><br><span class="line"></span><br><span class="line">modelAndView和model+String</span><br><span class="line"></span><br><span class="line">```java</span><br><span class="line">@RequestMapping(&quot;/queryAll&quot;)</span><br><span class="line"></span><br><span class="line">public ModelAndView queryAll ( Integer id ) &#123;</span><br><span class="line"></span><br><span class="line">ModelAndView modelAndView  = new ModelAndView();</span><br><span class="line"></span><br><span class="line">Item item = this.itemService.queryItemById(id);</span><br><span class="line"></span><br><span class="line">modelAndView.addObject(&quot;item&quot;,item);</span><br><span class="line"></span><br><span class="line">modelAndView.setViewName(&quot;page/query&quot;);</span><br><span class="line"></span><br><span class="line">return modelAndView;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;/queryAll&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">queryAll</span> <span class="params">( Integer id ,Model model)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">Item item = <span class="keyword">this</span>.itemService.queryItemById(id);</span><br><span class="line"></span><br><span class="line">model.addAttribute(<span class="string">&quot;item&quot;</span>,item);</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> <span class="string">&quot;page/query&quot;</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果id跟前端的字段不一致，在参数前加@RequestParam（“itemId）</p>
+<p>list转json向前端传json：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">@RequestMapping(&quot;/getProviderlist&quot;)</span><br><span class="line">@ResponseBody</span><br><span class="line">public String getProviderlist(HttpServletResponse httpServletResponse)&#123;</span><br><span class="line">    List&lt;Provider&gt; providerList = new ArrayList&lt;Provider&gt;();</span><br><span class="line">    providerList = providerService.getProviderList(&quot;&quot;, &quot;&quot;);</span><br><span class="line">    JSONArray jsonArray=new JSONArray();</span><br><span class="line">    for (Provider provider : providerList) &#123;</span><br><span class="line">        jsonArray.add(provider);</span><br><span class="line">    &#125;</span><br><span class="line">    return jsonArray.toString();</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2022/01/07/SpringMvc/" data-id="cky3xqon30003hkth77gq6lb2" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2022/01/07/%E9%9D%A2%E8%AF%95%E9%A2%98&&%E8%96%84%E5%BC%B1%E7%82%B9/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          (no title)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2022/01/07/Spring/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title"></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/07/%E9%9D%A2%E8%AF%95%E9%A2%98&&%E8%96%84%E5%BC%B1%E7%82%B9/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/07/SpringMvc/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/07/Spring/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/07/MyBatis/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/07/Java%E4%B8%AD%E7%9A%84%E5%90%84%E7%A7%8DO/">(no title)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2022 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
